@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Baut die Seiten „Wagenpaten – Volksfestumzug der Schulen“.
-Homepage: index.html, festzug.html, ueber-uns.html, impressum.html, datenschutz.html.
-Entwicklung (nie auf main): entwicklung/vorstellung.html, Menü „/ Entwicklung /“ in entwicklung/menu.js.
+Startseite: index.html (Vorstellung der Wagenpaten).
+Homepage: start.html, festzug.html, ueber-uns.html, impressum.html, datenschutz.html.
+Entwicklung (nie auf main): Menü „/ Entwicklung /“ in entwicklung/menu.js, eingebunden in Blöcken ENTWICKLUNG:START/END.
 Inhalte (Wagenliste) stehen hier; Gestaltung in assets/vofe.css."""
 from pathlib import Path
+import re
 Z = Path(__file__).resolve().parent.parent
 
 SYMBOLE = '''<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -43,10 +45,10 @@ SYMBOLE = '''<svg width="0" height="0" style="position:absolute" aria-hidden="tr
 <symbol id="i-regen" viewBox="0 0 24 24"><path d="M7 16.5h10.5a4 4 0 0 0 .6-8 6 6 0 0 0-11.6 1A3.5 3.5 0 0 0 7 16.5z" class="tupfer"/><path d="M7 16.5h10.5a4 4 0 0 0 .6-8 6 6 0 0 0-11.6 1A3.5 3.5 0 0 0 7 16.5z"/><path d="M9 19.5l-.8 2M13 19.5l-.8 2M17 19.5l-.8 2"/></symbol>
 </defs></svg>'''
 
-VORSEITE = "entwicklung/vorstellung.html"
+VORSEITE = "index.html"
 
 # Seiten der Homepage: Datei -> Link. Absolute Links, damit sie auch aus entwicklung/ heraus stimmen.
-LINK = {"index.html": "/", "festzug.html": "/festzug.html", "ueber-uns.html": "/ueber-uns.html",
+LINK = {"index.html": "/", "start.html": "/start.html", "festzug.html": "/festzug.html", "ueber-uns.html": "/ueber-uns.html",
         "impressum.html": "/impressum.html", "datenschutz.html": "/datenschutz.html"}
 
 def i(name, cls="ico"): return f'<svg class="{cls}" aria-hidden="true"><use href="#i-{name}"/></svg>'
@@ -56,21 +58,19 @@ def entwicklung(inhalt): return f"<!-- ENTWICKLUNG:START -->\n{inhalt}\n<!-- ENT
 
 def kopf(seite):
     if seite == VORSEITE:
-        return (entwicklung('<div class="dev"><div class="wrap"><span>Entwurf · nur in der Entwicklungsumgebung sichtbar · Vorstellung der Homepage Wagenpaten</span><span class="vs-schalter" role="group" aria-label="Variante des Kopfbereichs">Kopfbereich <button type="button" data-kopf="1" aria-pressed="true">1</button><button type="button" data-kopf="2" aria-pressed="false">2</button></span></div></div>') + f'''
-<header class="kopf"><div class="wrap">
+        return ('''<header class="kopf"><div class="wrap">
 <span class="marke"><svg class="marke__zeichen" aria-hidden="true"><use href="#v-horaff"/></svg><span><b>Wagenpaten</b><small>Volksfestumzug der Schulen 2027</small></span></span>
-<nav class="nav" aria-label="Seiten"><a class="knopf" href="/">Zur Homepage</a></nav></div></header>''')
-    nav = [("index.html", "Start"), ("festzug.html", "Der Festzug"), ("ueber-uns.html", "Über uns")]
-    return (entwicklung('<div class="dev"><div class="wrap"><span>Entwurf · nur in der Entwicklungsumgebung sichtbar · Volksfestumzug 2027 (Wagenliste: Stand 2024)</span></div></div>') + f'''
-<header class="kopf"><div class="wrap">
-<a class="marke" href="/"><svg class="marke__zeichen" aria-hidden="true"><use href="#v-horaff"/></svg><span><b>Wagenpaten</b><small>Volksfestumzug der Schulen 2027</small></span></a>
+<nav class="nav" aria-label="Seiten"><a class="knopf" href="/start.html">Zur Homepage</a></nav></div></header>''')
+    nav = [("start.html", "Start"), ("festzug.html", "Der Festzug"), ("ueber-uns.html", "Über uns")]
+    return (f'''<header class="kopf"><div class="wrap">
+<a class="marke" href="/start.html"><svg class="marke__zeichen" aria-hidden="true"><use href="#v-horaff"/></svg><span><b>Wagenpaten</b><small>Volksfestumzug der Schulen 2027</small></span></a>
 <div class="stadtlogo" title="Platzhalter – Nutzung des Stadtlogos vor Veröffentlichung mit der Stadt klären"><span>CR</span>Mit freundlicher<br>Unterstützung (Logo Stadt)</div>
 <nav class="nav" aria-label="Seiten">''' + "".join(f'<a href="{LINK[d]}"' + (' aria-current="page"' if d == seite else "") + f'>{t}</a>' for d, t in nav) +
             '<a class="knopf" href="/festzug.html">Wagen aussuchen</a></nav></div></header>')
 
 FUSS = '''<footer class="fuss"><div class="wrap">
 <div><b>Wagenpaten</b><p style="margin-top:.4rem">Eine Initiative von Crailsheimern für Crailsheim.<br>Kontakt: daniel.stroebel@empiria.de</p></div>
-<nav><a href="/">Start</a><a href="/festzug.html">Der Festzug</a><a href="/ueber-uns.html">Über uns</a><a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a></nav>
+<nav><a href="/start.html">Start</a><a href="/festzug.html">Der Festzug</a><a href="/ueber-uns.html">Über uns</a><a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a></nav>
 </div></footer>'''
 
 def seite(datei, titel, rumpf):
@@ -99,13 +99,26 @@ def seite(datei, titel, rumpf):
 '''
     (Z / datei).write_text(html, encoding="utf-8")
 
+# Beispiel-Paten mit Logo (Originalfarben). Das Logo von Müller & Ströbel wird eingebettet,
+# weil seine Schrift (Lora) sonst nicht aus der Seite geladen wird.
+def _ms_logo():
+    s = (Z / "assets/bilder/logos/mueller-stroebel.svg").read_text(encoding="utf-8")
+    s = re.sub(r"<\?xml.*?\?>|<!--.*?-->", "", s, flags=re.S).strip()
+    s = s.replace(' id="Ebene_1"', ' role="img" aria-label="Müller &amp; Ströbel"').replace(".st", ".ms-st").replace('class="st', 'class="ms-st')
+    return s
+LOGO = {
+    "empiria GmbH": '<img class="logo--empiria" src="/assets/bilder/logos/empiria.svg" alt="empiria GmbH">',
+    "sofort sichtbar": '<img class="logo--sofort" src="/assets/bilder/logos/sofortsichtbar.svg" alt="sofort sichtbar">',
+    "Müller &amp; Ströbel": _ms_logo(),
+}
+
 # ---------------------------------------------------------------- Startseite
 START = f'''<section class="held"><div class="wrap">
 <div>
   <p class="kicker">Volksfestumzug der Schulen 2027 · Crailsheim</p>
   <h1>Süßes für den <em>Umzug.</em></h1>
   <p class="lead">Beim Fränkischen Volksfest 2027 sind wieder die Schulen dran: Übernehmt die Patenschaft für einen Wagen – damit die Kinder ihre Süßigkeiten nicht mehr selbst mitbringen müssen und am Straßenrand alle strahlen.</p>
-  <div class="knoepfe"><a class="knopf" href="/festzug.html">Wagen aussuchen {i("weiter")}</a><a class="knopf knopf--rand" href="#so-gehts">So funktioniert’s</a></div>
+  <div class="knoepfe"><a class="knopf" href="/festzug.html">Wagen aussuchen {i("weiter")}</a><a class="knopf knopf--rand" href="#so-gehts">So funktioniert es</a></div>
   <div class="held__fakten"><div><b>23</b>Wagen der Schulen</div><div><b>16</b>Schulen aus Crailsheim</div><div><b>2027</b>Umzug der Schulen</div></div>
 </div>
 <div class="held__bild" aria-hidden="true">
@@ -125,7 +138,7 @@ START = f'''<section class="held"><div class="wrap">
 </div></section>
 
 <section class="sek" id="so-gehts"><div class="wrap">
-<p class="kicker">So funktioniert’s</p>
+<p class="kicker">So funktioniert es</p>
 <h2 class="h2">In vier Schritten zum Wagenpaten.</h2>
 <div class="schritte">
   <div class="schritt"><span class="schritt__ico">{i("wagen")}</span><h3>Wagen aussuchen</h3><p>Im Festzug seht ihr jeden Wagen mit Motto und Schule.</p></div>
@@ -166,7 +179,7 @@ START = f'''<section class="held"><div class="wrap">
 <section class="sek sek--hell"><div class="wrap">
 <p class="kicker">Unsere Paten</p>
 <h2 class="h2">Diese Unternehmen sind dabei.</h2>
-<p class="lead">Für den Umzug 2027.</p><div class="paten"><span class="beispiel">Musterfirma<br>(Beispiel)</span><span class="beispiel">Beispiel GmbH</span><span class="beispiel">Muster &amp; Co.<br>(Beispiel)</span><span>Euer Logo</span><span>Euer Logo</span><span>Euer Logo</span></div>
+<p class="lead">Für den Umzug 2027.</p><div class="paten"><span class="beispiel logo">{LOGO["empiria GmbH"]}</span><span class="beispiel logo">{LOGO["sofort sichtbar"]}</span><span class="beispiel logo">{LOGO["Müller &amp; Ströbel"]}</span><span>Euer Logo</span><span>Euer Logo</span><span>Euer Logo</span></div>
 </div></section>
 
 <section class="band"><div class="wrap"><h2>Sucht euch euren Wagen aus.</h2><a class="knopf" href="/festzug.html">Zum Festzug {i("weiter")}</a></div></section>'''
@@ -176,7 +189,7 @@ WAGEN = [
  ("Bau der Liebfrauenkapelle, Stadttor &amp; Gräfin Adelheid", "Realschule am Karlsberg", None),
  ("Bischof Burkhard, Begründer der Münsterlinie", "Realschule zur Flügelau und Grundschule Altenmünster", None),
  ("Barbara von Zipplingen und Hammeltanz", "Grundschule Altenmünster", None),
- ("Höfisches Leben auf der Burg Flügelau", "Realschule zur Flügelau", "Beispiel GmbH"),
+ ("Höfisches Leben auf der Burg Flügelau", "Realschule zur Flügelau", "empiria GmbH"),
  ("Freud’ und Leid in alter Zeit", "Albert-Schweitzer-Gymnasium", None),
  ("Adam Weiß und die Reformation in Crailsheim", "Albert-Schweitzer-Gymnasium", None),
  ("Alchimisten im Mittelalter", "Lise-Meitner-Gymnasium", None),
@@ -187,11 +200,11 @@ WAGEN = [
  ("Fahnenträger der belagernden Städte", "Leonhard-Sachs-Schule", None),
  ("Angreifende Haufen der Belagerer", "Leonhard-Sachs-Schule", None),
  ("Blide", "Leonhard-Sachs-Schule", None),
- ("Sturm auf die Stadtmauer", "Eichendorffschule", "Muster &amp; Co."),
+ ("Sturm auf die Stadtmauer", "Eichendorffschule", "sofort sichtbar"),
  ("Bürgermeisterin", "Leonhard-Sachs-Schule", None),
  ("Spielende Kindergruppen", "Sprachheilschule Crailsheim", None),
  ("Bäuerliches Treiben um die Ingersheimer Mühle", "Geschwister-Scholl-Schule", None),
- ("Backhaus", "Reußenbergschule", "Musterfirma"),
+ ("Backhaus", "Reußenbergschule", "Müller &amp; Ströbel"),
  ("Die Gaukler vom Burgberg", "Freie Waldorfschule", None),
  ("Wacholderheide", "Astrid-Lindgren-Schule und Konrad-Biesalski-Schule", None),
  ("Diehlbrunnen von Bronnholzheim", "Fröbelschule Ellrichshausen", None),
@@ -201,7 +214,7 @@ def wagen(n, w):
     t, s, p = w
     status = f'<span class="status status--pate">Pate: {p}</span>' if p else '<span class="status status--frei">Noch frei</span>'
     mail = f'mailto:daniel.stroebel@empiria.de?subject=Patenschaft%20Wagen%20{n:02d}'
-    unten = (f'<div class="wagen__pate"><span>LOGO</span><div><b>{p}</b> <small>(Beispiel)</small><br><small>ist Pate dieses Wagens – danke!</small></div></div>' if p
+    unten = (f'<div class="wagen__pate"><span class="wagen__logo">{LOGO.get(p, "LOGO")}</span><div><b>{p}</b> <small>(Beispiel)</small><br><small>ist Pate dieses Wagens – danke!</small></div></div>' if p
              else f'<a class="knopf" href="{mail}">Patenschaft übernehmen {i("weiter")}</a>')
     return (f'<li class="wagen{" wagen--pate" if p else ""}"><span class="wagen__nr">{n:02d}</span><details><summary><div><h3>{t}</h3><p class="wagen__schule">{s}</p></div>{status}{i("pfeil","pfeil")}</summary>'
             f'<div class="wagen__mehr"><dl><dt>Motto</dt><dd>{t}</dd><dt>Schule</dt><dd>{s}</dd><dt>Verteilt wird</dt><dd>Süßigkeiten und Kleinigkeiten – Menge stimmen wir mit der Schule ab</dd></dl>{unten}</div></details></li>')
@@ -227,7 +240,7 @@ UEBER = f'''<section class="sek"><div class="wrap ueber">
   <p>Die Idee ist einfach: Unternehmen aus der Region werden Wagenpaten. Die Wagenengel kümmern sich um die Sicherheit, die Wagenpaten darum, dass auf dem Wagen ordentlich was zum Verteilen ist. Die Kinder müssen nichts mehr selbst mitbringen – und am Straßenrand freuen sich alle.</p>
 </div>
 <div class="kopfe">
-  <div class="person"><img src="/assets/bilder/daniel-round.webp" alt="Daniel Ströbel"><div><b>Daniel Ströbel</b><small>Initiator · beim letzten Schulumzug als Wagenengel dabei</small></div></div>
+  <div class="person"><img class="person__foto" src="/assets/bilder/ansprechpartner-daniel.webp" alt="Daniel Ströbel"><div><b>Daniel Ströbel</b><small>Initiator · beim letzten Schulumzug als Wagenengel dabei</small></div></div>
   <div class="person"><span class="person__platz">+</span><div><b>Mitstreiter gesucht</b><small>Platz für weitere Unterstützer der Idee</small></div></div>
 </div>
 </div>
@@ -241,21 +254,15 @@ UEBER = f'''<section class="sek"><div class="wrap ueber">
 # ---------------------------------------------------------------- Vorseite (Vorstellung der Homepage, z. B. für die Schulleitung)
 def vorschau(datei, bild, nr, titel, text):
     return (f'<a class="vs-karte" href="{LINK[datei]}"><span class="vs-fenster"><span class="vs-leiste"><i></i><i></i><i></i><span>wagenpaten-crailsheim.de</span></span>'
-            f'<span class="vs-seite"><img src="/entwicklung/bilder/vorschau-{bild}.jpg?v=1" alt="Vorschau der Seite „{titel}“"></span></span>'
+            f'<span class="vs-seite"><img src="/assets/bilder/vorschau-{bild}.jpg?v=2" alt="Vorschau der Seite „{titel}“"></span></span>'
             f'<span class="vs-text"><small>Seite {nr}</small><b>{titel}</b><span class="vs-text__p">{text}</span><span class="vs-pfeil">Seite öffnen {i("weiter")}</span></span></a>')
 
 VORSTELLUNG = f'''<section class="held vs-held"><div class="wrap">
 <div>
   <p class="kicker">Eine Idee für den Volksfestumzug der Schulen 2027</p>
   <h1>Warum es die <em>Wagenpaten</em> gibt.</h1>
-  <div class="vs-v vs-v--2" hidden>
-  <p class="lead">Für die Kinder am Straßenrand gibt es beim Umzug kaum etwas Schöneres, als etwas zugeworfen zu bekommen. Und wer auf dem Wagen mitfährt oder mitläuft, möchte ordentlich etwas zum Verteilen haben.</p>
-  <p class="vs-v__text">Bisher bringen die Kinder ihre Süßigkeiten selbst mit, und die Wagen sind ganz unterschiedlich ausgestattet.</p>
-  <p class="vs-v__kern">Drei Päckchen Bonbons von zu Hause<br class="vs-br"> reichen nicht weit.</p>
-  <p class="vs-v__text">Ich möchte, dass jeder Wagen ordentlich ausgestattet ist. Dann haben alle mehr Spaß am Umzug: die Kinder, die mitlaufen und verteilen, und die Kinder, die am Wegesrand stehen.</p>
-  </div>
-  <p class="lead vs-v vs-v--1">Beim letzten Schulumzug war ich als Wagenengel dabei. Ich habe gesehen, wie viel Freude die Kinder haben – und dass sie die Süßigkeiten zum Verteilen selbst mitbringen. Das möchte ich ändern. Denn das Volksfest gehört zu Crailsheim, und der Umzug der Schulen gehört dazu.</p>
-  <div class="knoepfe"><a class="knopf" href="/">Zur Homepage {i("weiter")}</a></div>
+  <p class="lead">Beim letzten Schulumzug war ich als Wagenengel dabei. Ich habe gesehen, wie viel Freude die Kinder haben – und dass sie die Süßigkeiten zum Verteilen selbst mitbringen. Das möchte ich ändern. Denn das Volksfest gehört zu Crailsheim, und der Umzug der Schulen gehört dazu.</p>
+  <div class="knoepfe"><a class="knopf" href="/start.html">Zur Homepage {i("weiter")}</a></div>
   <div class="vs-person"><img src="/assets/bilder/ansprechpartner-daniel.webp" alt="Daniel Ströbel"><div><b>Daniel Ströbel</b><small>Crailsheimer · <span class="vs-nw">ehemaliger Schüler des ASG</span></small></div></div>
 </div>
 <div class="vs-marke">
@@ -297,13 +304,13 @@ VORSTELLUNG = f'''<section class="held vs-held"><div class="wrap">
 <p class="kicker">Die Homepage</p>
 <h2 class="h2">Drei Seiten, jede mit einer Aufgabe.</h2>
 <div class="vs-seiten">
-  {vorschau("index.html", "umzug-schulen", 1, "Start", "Erklärt Unternehmen die Idee: was eine Patenschaft bringt, wie sie in vier Schritten funktioniert und wie wir in Social Media darüber berichten.")}
+  {vorschau("start.html", "umzug-schulen", 1, "Start", "Erklärt Unternehmen die Idee: was eine Patenschaft bringt, wie sie in vier Schritten funktioniert und wie wir in Social Media darüber berichten.")}
   {vorschau("festzug.html", "festzug", 2, "Der Festzug", "Alle 23 Wagen der Schulen in der Reihenfolge des Umzugs. Freie Wagen sind markiert, vergebene zeigen ihren Paten. Mit einem Klick wird ein Unternehmen Wagenpate.")}
   {vorschau("ueber-uns.html", "ueber-uns", 3, "Über uns", "Warum es die Wagenpaten gibt und wer dahintersteht. Hier ist auch der Platz für das ASG als Mitinitiator.")}
 </div>
 </div></section>
 
-<section class="band"><div class="wrap"><h2>Jetzt die Homepage ansehen.</h2><a class="knopf" href="/">Zur Homepage {i("weiter")}</a></div></section>'''
+<section class="band"><div class="wrap"><h2>Jetzt die Homepage ansehen.</h2><a class="knopf" href="/start.html">Zur Homepage {i("weiter")}</a></div></section>'''
 
 # ---------------------------------------------------------------- Impressum und Datenschutz (Angaben der empiria GmbH)
 ANSCHRIFT = """empiria GmbH<br>
@@ -399,7 +406,7 @@ Kapellengasse 6<br>
 </div></section>'''
 
 seite(VORSEITE, "Vorstellung", VORSTELLUNG)
-seite("index.html", "Süßes für den Umzug", START)
+seite("start.html", "Süßes für den Umzug", START)
 seite("festzug.html", "Der Festzug", FESTZUG)
 seite("ueber-uns.html", "Über uns", UEBER)
 seite("impressum.html", "Impressum", IMPRESSUM)

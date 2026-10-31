@@ -9,20 +9,19 @@ var MENU =
 '<div class="dev-dd-panel">'+
 '<p class="dev-dd-note"><b>Nur in der Entwicklungsumgebung sichtbar</b>Dieser Menüpunkt ist in der Live-Version nicht enthalten.</p>'+
 '<p class="dev-dd-group">Vorstellung</p>'+
-'<a href="/entwicklung/vorstellung.html" class="dev-dd-link"><span class="dev-dd-tag">VF</span><span class="dev-dd-txt"><b>Homepage VoFe Umzug</b><small>Wagenpaten &middot; Vorstellung der Homepage</small></span></a>'+
+'<a href="/" class="dev-dd-link"><span class="dev-dd-tag">VF</span><span class="dev-dd-txt"><b>Homepage VoFe Umzug</b><small>Startseite &middot; Vorstellung der Wagenpaten</small></span></a>'+
 '<p class="dev-dd-group dev-dd-group--sub">Die Seiten der Homepage</p>'+
-'<a href="/" class="dev-dd-link"><span class="dev-dd-tag">1</span><span class="dev-dd-txt"><b>Start</b><small>Die Idee für Unternehmen</small></span></a>'+
+'<a href="/start.html" class="dev-dd-link"><span class="dev-dd-tag">1</span><span class="dev-dd-txt"><b>Start</b><small>Die Idee für Unternehmen</small></span></a>'+
 '<a href="/festzug.html" class="dev-dd-link"><span class="dev-dd-tag">2</span><span class="dev-dd-txt"><b>Der Festzug</b><small>Alle Wagen der Schulen &middot; Patenschaft übernehmen</small></span></a>'+
 '<a href="/ueber-uns.html" class="dev-dd-link"><span class="dev-dd-tag">3</span><span class="dev-dd-txt"><b>Über uns</b><small>Motivation &middot; wer dahintersteckt</small></span></a>'+
 '</div>'+
 '</div>';
 
-// Das Menü sitzt rechts in der schwarzen Entwicklungsleiste (.dev), damit die Kopfzeile
-// genau so bleibt, wie sie live geht.
+// Das Menü sitzt in der Kopfzeile direkt vor dem normalen Menü (.nav).
 function einsetzen(){
-var leiste=document.querySelector('.dev .wrap');
-if(!leiste||document.querySelector('[data-dev-dd]'))return;
-leiste.insertAdjacentHTML('beforeend',MENU);
+var nav=document.querySelector('.kopf .nav');
+if(!nav||document.querySelector('[data-dev-dd]'))return;
+nav.insertAdjacentHTML('beforebegin',MENU);
 }
 
 function init(){

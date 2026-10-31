@@ -1,14 +1,24 @@
 /* Entwicklungsmenü – nur Daniels Branch. Farben aus assets/vofe.css. */
 .dev-dd{--grey-50:#6f6a64;--grey-70:#3d3a37;--grey-bg:#f0eee9}
 .dev-dd{position:relative;display:inline-flex;align-items:center;margin-right:auto;margin-left:1rem}
-/* In der schwarzen Entwicklungsleiste: hell, rechtsbündig, Panel nach links aufklappend */
-.dev{position:relative;z-index:30}
-.dev .wrap{align-items:center}
-.dev .dev-dd{margin:0 0 0 auto;flex:0 0 auto}
-.dev .dev-dd-toggle{color:#fff;font-size:12.5px;font-weight:500}
-.dev .dev-dd-toggle:hover,.dev .dev-dd.is-open .dev-dd-toggle{color:#fff400}
-.dev .dev-dd-panel{left:auto;right:-14px;top:calc(100% + 12px);font-size:15px;color:#1a1817}
-.dev .dev-dd-panel::before{top:-14px;height:14px}
+/* In der Kopfzeile vor dem normalen Menü, Schrift wie die Menüpunkte */
+.kopf .marke,.kopf .stadtlogo{flex-shrink:0;white-space:nowrap}
+.kopf .dev-dd{margin:0 0 0 auto;flex:0 0 auto}
+.kopf .dev-dd + .nav{margin-left:0}
+.kopf .dev-dd-toggle{padding:.55rem .5rem;font-size:.95rem;font-weight:500;color:var(--grey-50)}
+/* Platz: die Kopfzeile der Live-Seite bleibt unverändert, das Menü nimmt sich nur, was frei ist */
+.kopf .wrap:has(.dev-dd){gap:1rem}
+.kopf .dev-dd .dev-dd-long{display:none}
+.kopf .dev-dd .dev-dd-short{display:inline}
+@media (min-width:1081px) and (max-width:1300px){.kopf .wrap:has(.dev-dd) .stadtlogo{display:none}}
+@media (max-width:960px){
+.kopf .wrap:has(.dev-dd){flex-wrap:wrap;height:auto;padding-top:.8rem;padding-bottom:.6rem;row-gap:.4rem}
+.kopf .wrap:has(.dev-dd) .nav{margin-left:0;width:100%}
+.kopf .wrap:has(.dev-dd) .nav .knopf{margin-left:auto}
+.kopf .dev-dd-toggle{padding:.4rem 0}
+}
+.kopf .dev-dd-panel{left:auto;right:0;top:calc(100% + 14px);font-size:15px;color:#1a1817}
+.kopf .dev-dd-panel::before{top:-16px;height:16px}
 .dev-dd-toggle{display:inline-flex;align-items:center;gap:.35rem;font-family:inherit;font-size:.95rem;font-weight:400;line-height:1.4;color:var(--grey-50);background:none;border:0;padding:0;cursor:pointer;white-space:nowrap;transition:color .18s ease}
 .dev-dd-toggle:hover,.dev-dd.is-open .dev-dd-toggle{color:var(--ink)}
 .dev-dd-chev{width:12px;height:12px;transition:transform .2s ease}
@@ -43,8 +53,8 @@ a.dev-dd-link--parent::after{content:"";width:6px;height:6px;margin-left:auto;fl
 .dev-dd-short{display:none}
 /* ---- Handy: Panel über die volle Breite der Kopfzeile, zweite Ebene eingerückt ---- */
 @media (max-width:900px){
-.dev .dev-dd{position:static}
-.dev .dev-dd-panel{left:12px;right:12px;width:auto;top:100%}
+.kopf .dev-dd{position:static}
+.kopf .dev-dd-panel{left:12px;right:12px;width:auto;top:100%}
 .dev-dd .dev-dd-long{display:none}
 .dev-dd .dev-dd-short{display:inline}
 .dev-dd-panel{left:0;right:0;width:auto;top:calc(100% - 6px)}
@@ -52,4 +62,3 @@ a.dev-dd-link--parent::after{content:"";width:6px;height:6px;margin-left:auto;fl
 .dev-dd-flyout-panel{width:auto;padding:0 0 0 12px;margin:2px 0 6px 20px;background:none;border:0;border-left:2px solid var(--grey-bg);border-radius:0;box-shadow:none}
 a.dev-dd-link--parent::after{display:none}
 }
-.dev .vs-schalter + .dev-dd{margin-left:2rem}

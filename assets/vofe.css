@@ -122,6 +122,15 @@ p { margin: 0; }
 .paten { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .8rem; margin-top: 2.4rem; }
 .paten span { display: grid; place-items: center; aspect-ratio: 3 / 2; border-radius: 12px; border: 1.5px dashed #cfcac3; color: #9b958e; font-size: .8rem; font-weight: 600; text-align: center; padding: .4rem; }
 .paten span.beispiel { border-style: solid; border-color: var(--linie); background: var(--weiss); color: var(--ink); }
+.paten span.logo { padding: 1rem 1.1rem; }
+.paten span.logo > img, .paten span.logo > svg { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; }
+.paten span.logo > svg { width: 100%; }
+/* optisch gleich groß: breite Logos dürfen die Fläche nutzen, das gestapelte sofort sichtbar bleibt kleiner */
+.paten span.logo { padding: .9rem .7rem; }
+.paten .logo--empiria { width: 74%; }
+.paten .logo--sofort { max-height: 52% !important; }
+.wagen__logo .logo--sofort { max-height: 80% !important; }
+@media (max-width: 560px) { .paten span.logo { padding: .6rem .4rem; } }
 
 /* Aufruf-Band */
 .band { padding: 4.5rem 0; background: var(--gelb); }
@@ -166,6 +175,9 @@ details[open] .pfeil { transform: rotate(180deg); }
 .wagen__mehr dt { color: var(--grau); }
 .wagen__mehr dd { margin: 0; }
 .wagen__pate { display: flex; align-items: center; gap: .8rem; padding: .9rem 1rem; border-radius: 12px; background: var(--hell); }
+.wagen__pate span.wagen__logo { width: 7.5rem; padding: .45rem .6rem; }
+.wagen__logo > img, .wagen__logo > svg { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; }
+.wagen__logo > svg { width: 100%; }
 .wagen__pate span { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 10px; background: var(--weiss); border: 1px solid var(--linie); font-size: .65rem; font-weight: 700; color: var(--grau); }
 .zug__hinweis { margin-top: 2rem; font-size: .9rem; color: var(--grau); }
 .wagen[hidden] { display: none; }
@@ -177,6 +189,8 @@ details[open] .pfeil { transform: rotate(180deg); }
 .kopfe { display: grid; gap: 1rem; }
 .person { display: flex; gap: 1.1rem; align-items: center; padding: 1.3rem; border-radius: var(--r); background: var(--hell); }
 .person img, .person__platz { width: 5.2rem; height: 5.2rem; border-radius: 50%; object-fit: cover; flex: none; background: var(--gelb); }
+/* Foto wie auf der Startseite (.vs-person): weißer Rand, leichter Schatten */
+.person img.person__foto { border: 3px solid #fff; background: #fff; box-shadow: 0 12px 28px rgba(26,24,23,.14); }
 .person__platz { display: grid; place-items: center; font-family: var(--head); font-weight: 700; font-size: 1.4rem; }
 .person b { display: block; font-family: var(--head); font-size: 1.25rem; }
 .person small { display: block; margin-top: .2rem; color: var(--grau); font-size: .9rem; }
@@ -300,16 +314,6 @@ h1, h2, h3 { font-weight: 600; letter-spacing: -.01em; line-height: 1.08; }
   .vs-beide { padding: 1.3rem 1.5rem; }
 }
 
-/* Vorseite: Umschalter Kopfbereich 1/2 (nur Entwurf) und Variante 2 */
-.vs-schalter { display: inline-flex; align-items: center; gap: .35rem; margin-left: auto; }
-.vs-schalter button { width: 1.7rem; height: 1.4rem; border-radius: 6px; border: 1px solid #57524d; background: transparent; color: #cfcac3; font: 600 .75rem var(--text); cursor: pointer; }
-.vs-schalter button[aria-pressed="true"] { background: var(--gelb); border-color: var(--gelb); color: var(--ink); }
-.vs-v[hidden] { display: none; }
-.vs-v__text { margin-top: 1rem; max-width: 40rem; font-size: 1.12rem; color: var(--ink-2); }
-.vs-v__kern { margin-top: 1.4rem; padding-left: 1.2rem; border-left: 4px solid var(--gelb); font-family: var(--head); font-weight: 600; font-size: clamp(1.4rem, 2.4vw, 1.6rem); line-height: 1.24; }
-.vs-v--2 + .vs-v--1 + .knoepfe, .vs-v--2 ~ .knoepfe { margin-top: 2rem; }
-@media (max-width: 560px) { .vs-schalter { margin-left: 0; } }
-@media (max-width: 560px) { .vs-br { display: none; } }
 
 /* Vorseite: Ablauf in vier Schritten (Die Idee) – Linie wie der Festzug */
 .vs-ablauf { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem; margin: 3.4rem 0 0; padding: 0; list-style: none; }
