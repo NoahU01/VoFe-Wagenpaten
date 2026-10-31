@@ -254,7 +254,7 @@ UEBER = f'''<section class="sek"><div class="wrap ueber">
 # ---------------------------------------------------------------- Vorseite (Vorstellung der Homepage, z. B. für die Schulleitung)
 def vorschau(datei, bild, nr, titel, text):
     return (f'<a class="vs-karte" href="{LINK[datei]}"><span class="vs-fenster"><span class="vs-leiste"><i></i><i></i><i></i><span>wagenpaten-crailsheim.de</span></span>'
-            f'<span class="vs-seite"><img src="/assets/bilder/vorschau-{bild}.jpg?v=2" alt="Vorschau der Seite „{titel}“"></span></span>'
+            f'<span class="vs-seite"><img src="/assets/bilder/vorschau-{bild}.jpg?v=3" alt="Vorschau der Seite „{titel}“"></span></span>'
             f'<span class="vs-text"><small>Seite {nr}</small><b>{titel}</b><span class="vs-text__p">{text}</span><span class="vs-pfeil">Seite öffnen {i("weiter")}</span></span></a>')
 
 VORSTELLUNG = f'''<section class="held vs-held"><div class="wrap">
